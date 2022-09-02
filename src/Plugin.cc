@@ -234,7 +234,20 @@ void Plugin::MetaHookPre(zeek::plugin::HookType hook, const zeek::plugin::HookAr
         {
             // Increase the depth, and append it to the lineage vector
             func_depth++;
-            lineage.push_back(func->Name());
+
+            // DOP:  Prometheus doesn't like non-UTF8 labels, function
+            // names should be printable and that's easier to validate.
+	    auto name_str=func->Name();
+	    int i=0;
+            while(i < len(name_str)){
+		if(!isprint(name_str[i]){
+			name_str="UNKNOWN";
+			break;	
+		}
+		i++;
+	    } 
+	    lineage.push_back(name_str);
+            // lineage.push_back(func->Name());
         }
     }
     else
